@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:societas/main_tab_page.dart';
-import 'package:societas/models/attendance.dart';
-import 'package:societas/models/turnout.dart';
 import 'package:societas/providers/attendance_provider.dart';
 import 'package:societas/providers/payment_provider.dart';
 import 'package:societas/providers/theme_provider.dart';
@@ -10,7 +8,6 @@ import 'package:societas/providers/turnout_provider.dart';
 import 'services/database_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:societas/providers/member_provider.dart';
-import 'package:societas/providers/payment_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

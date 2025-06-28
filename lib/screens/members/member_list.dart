@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:societas/providers/member_provider.dart';
 import 'package:societas/providers/theme_provider.dart';
+import 'package:societas/screens/members/member_add.dart';
 import 'package:societas/screens/members/member_details.dart';
 
 class MemberViewPage extends StatefulWidget {
@@ -78,6 +79,13 @@ class _MemberViewPageState extends State<MemberViewPage> {
     }
   }
 
+  void _navigateToAddMember(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MemberAddPage()),
+    ).then((_) => _loadMembers());
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -90,6 +98,11 @@ class _MemberViewPageState extends State<MemberViewPage> {
       appBar: AppBar(
         title: const Text('Members'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _navigateToAddMember(context),
+            tooltip: 'Add new member',
+          ),
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
@@ -107,7 +120,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
             padding: const EdgeInsets.all(8),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search by name',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -120,7 +133,7 @@ class _MemberViewPageState extends State<MemberViewPage> {
             ),
           ),
           if (_isLoading)
-            Expanded(child: Center(child: CircularProgressIndicator()))
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_errorMessage != null)
             Expanded(
               child: Center(
@@ -130,59 +143,100 @@ class _MemberViewPageState extends State<MemberViewPage> {
                     Text(_errorMessage!),
                     ElevatedButton(
                       onPressed: _loadMembers,
-                      child: Text('Retry'),
+                      child: const Text('Retry'),
                     ),
                   ],
                 ),
               ),
             )
           else if (provider.members.isEmpty)
-            Expanded(child: Center(child: Text('No members found')))
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('No members found'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _navigateToAddMember(context),
+                      child: const Text('Add New Member'),
+                    ),
+                  ],
+                ),
+              ),
+            )
           else
             Expanded(
-              child: ListView.builder(
-                itemCount: visibleMembers.length,
-                itemBuilder: (context, index) {
-                  final member = visibleMembers[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          member.profilepicture != null &&
-                              member.profilepicture!.isNotEmpty
-                          ? NetworkImage(
-                              'http://your-server.com/images/${member.profilepicture}',
-                            )
-                          : AssetImage('assets/default_user.png')
-                                as ImageProvider,
-                    ),
-                    title: Text(member.membername),
-                    subtitle: Text('Status: ${member.status}'),
-                    trailing: Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MemberDetailPage(member: member),
+              child: RefreshIndicator(
+                onRefresh: _loadMembers,
+                child: ListView.builder(
+                  itemCount: visibleMembers.length,
+                  itemBuilder: (context, index) {
+                    final member = visibleMembers[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage:
+                              member.profilepicture != null &&
+                                  member.profilepicture!.isNotEmpty
+                              ? NetworkImage(member.profilepicture!)
+                              : const AssetImage('assets/default_user.png')
+                                    as ImageProvider,
                         ),
-                      );
-                    },
-                  );
-                },
+                        title: Text(member.membername),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Status: ${member.status}'),
+                            if (member.position != null)
+                              Text('Position: ${member.position}'),
+                          ],
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MemberDetailPage(member: member),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           if (allMembers.length > _perPage)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(onPressed: _prevPage, icon: Icon(Icons.arrow_back)),
-                Text('Page $_currentPage'),
-                IconButton(
-                  onPressed: () => _nextPage(allMembers.length),
-                  icon: Icon(Icons.arrow_forward),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _prevPage,
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  Text(
+                    'Page $_currentPage of ${(allMembers.length / _perPage).ceil()}',
+                  ),
+                  IconButton(
+                    onPressed: () => _nextPage(allMembers.length),
+                    icon: const Icon(Icons.arrow_forward),
+                  ),
+                ],
+              ),
             ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToAddMember(context),
+        child: const Icon(Icons.add),
+        tooltip: 'Add new member',
       ),
     );
   }

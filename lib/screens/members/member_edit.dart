@@ -10,6 +10,7 @@ class MemberEditPage extends StatefulWidget {
   const MemberEditPage({super.key, required this.member});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MemberEditPageState createState() => _MemberEditPageState();
 }
 
@@ -50,9 +51,7 @@ class _MemberEditPageState extends State<MemberEditPage> {
 
     // Proper DateTime initialization
     _dobController = TextEditingController(
-      text: widget.member.dateofbirth != null
-          ? DateFormat('yyyy-MM-dd').format(widget.member.dateofbirth!)
-          : '',
+      text: DateFormat('yyyy-MM-dd').format(widget.member.dateofbirth!),
     );
 
     _occupationController = TextEditingController(

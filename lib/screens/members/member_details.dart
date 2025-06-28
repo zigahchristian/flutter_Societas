@@ -21,18 +21,18 @@ class MemberDetailPage extends StatelessWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Delete Member'),
+        title: const Text('Delete Member'),
         content: Text(
           'Are you sure you want to delete "${member.membername}"?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Delete'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -47,25 +47,20 @@ class MemberDetailPage extends StatelessWidget {
 
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Member deleted')));
+        ).showSnackBar(const SnackBar(content: Text('Member deleted')));
 
         Navigator.pop(context); // Go back to list
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to delete member')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete member')),
+        );
       }
     }
   }
 
-  String _formatDate(String? date) {
-    if (date == null || date.isEmpty) return '-';
-    try {
-      final parsed = DateTime.parse(date);
-      return DateFormat.yMMMMd().format(parsed); // Example: June 23, 2025
-    } catch (_) {
-      return date;
-    }
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return DateFormat.yMMMMd().format(date); // Example: June 23, 2025
   }
 
   @override
@@ -75,11 +70,11 @@ class MemberDetailPage extends StatelessWidget {
         title: Text(member.membername),
         actions: [
           IconButton(
-            icon: Icon(Icons.edit),
+            icon: const Icon(Icons.edit),
             onPressed: () => _editMember(context),
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () => _deleteMember(context),
           ),
         ],
@@ -99,7 +94,7 @@ class MemberDetailPage extends StatelessWidget {
                 child:
                     member.profilepicture == null ||
                         member.profilepicture!.isEmpty
-                    ? Icon(Icons.person, size: 50)
+                    ? const Icon(Icons.person, size: 50)
                     : null,
               ),
             ),
@@ -109,12 +104,12 @@ class MemberDetailPage extends StatelessWidget {
             Text('Phone: ${member.phone ?? '-'}'),
             Text('Position: ${member.position ?? '-'}'),
             Text('Status: ${member.status}'),
-            Text('DOB: ${_formatDate(member.dateofbirth as String?)}'),
+            Text('DOB: ${_formatDate(member.dateofbirth)}'),
             Text('Occupation: ${member.occupation ?? '-'}'),
             Text('Other Skills: ${member.otherskills ?? '-'}'),
             Text('Address: ${member.memberaddress ?? '-'}'),
             const SizedBox(height: 10),
-            Text(
+            const Text(
               'Emergency Contact:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -122,7 +117,7 @@ class MemberDetailPage extends StatelessWidget {
             Text('Phone: ${member.emergencycontactphone ?? '-'}'),
             Text('Relationship: ${member.emergencycontactrelationship ?? '-'}'),
             const SizedBox(height: 16),
-            Text('Join Date: ${_formatDate(member.joindate as String?)}'),
+            Text('Join Date: ${_formatDate(member.joindate)}'),
           ],
         ),
       ),
