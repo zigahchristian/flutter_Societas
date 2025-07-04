@@ -235,8 +235,8 @@ class _MemberViewPageState extends State<MemberViewPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToAddMember(context),
-        child: const Icon(Icons.add),
         tooltip: 'Add new member',
+        child: const Icon(Icons.add),
       ),
     );
   }
