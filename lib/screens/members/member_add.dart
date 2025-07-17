@@ -17,6 +17,8 @@ class _MemberAddPageState extends State<MemberAddPage> {
 
   // Controllers for text fields
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _positionController = TextEditingController();
@@ -33,12 +35,21 @@ class _MemberAddPageState extends State<MemberAddPage> {
   final TextEditingController _emergencyRelationshipController =
       TextEditingController();
 
-  // Default values
+  // Dropdown values
   MemberStatus _selectedStatus = MemberStatus.active;
+  String? _selectedGender;
+  final List<String> _genderOptions = [
+    'Male',
+    'Female',
+    'Other',
+    'Prefer not to say',
+  ];
   DateTime? _selectedDate;
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -55,59 +66,68 @@ class _MemberAddPageState extends State<MemberAddPage> {
   }
 
   Future<void> _saveMember() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    // Parse date safely
-    DateTime? parsedDate;
-    if (_dobController.text.isNotEmpty) {
-      parsedDate = DateTime.tryParse(_dobController.text);
-      if (parsedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid date format. Please use YYYY-MM-DD'),
-          ),
-        );
-        return;
-      }
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
-
-    final newMember = Member(
-      id: null, // Will be assigned by the database
-      membername: _nameController.text,
-      email: _emailController.text.isEmpty ? null : _emailController.text,
-      phone: _phoneController.text.isEmpty ? null : _phoneController.text,
-      position: _positionController.text.isEmpty
-          ? null
-          : _positionController.text,
-      memberaddress: _addressController.text.isEmpty
-          ? null
-          : _addressController.text,
-      dateofbirth: parsedDate,
-      occupation: _occupationController.text.isEmpty
-          ? null
-          : _occupationController.text,
-      otherskills: _skillsController.text.isEmpty
-          ? null
-          : _skillsController.text,
-      status: _selectedStatus,
-      membershiptype: _membershipTypeController.text,
-      emergencycontactname: _emergencyNameController.text.isEmpty
-          ? null
-          : _emergencyNameController.text,
-      emergencycontactphone: _emergencyPhoneController.text.isEmpty
-          ? null
-          : _emergencyPhoneController.text,
-      emergencycontactrelationship:
-          _emergencyRelationshipController.text.isEmpty
-          ? null
-          : _emergencyRelationshipController.text,
-      joindate: DateTime.now(), // Set current date as join date
-      profilepicture: null, // Can add profile picture handling if needed
-    );
 
     setState(() => _isSubmitting = true);
 
     try {
+      // Parse date safely
+      DateTime? parsedDate;
+      if (_dobController.text.isNotEmpty) {
+        parsedDate = DateTime.tryParse(_dobController.text);
+        if (parsedDate == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid date format. Please use YYYY-MM-DD'),
+            ),
+          );
+          return;
+        }
+      }
+
+      final newMember = Member(
+        membername:
+            '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
+        firstname: _firstNameController.text.trim(),
+        lastname: _lastNameController.text.trim(),
+        gender: _selectedGender,
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        position: _positionController.text.trim().isEmpty
+            ? null
+            : _positionController.text.trim(),
+        memberaddress: _addressController.text.trim().isEmpty
+            ? null
+            : _addressController.text.trim(),
+        dateofbirth: parsedDate,
+        occupation: _occupationController.text.trim().isEmpty
+            ? null
+            : _occupationController.text.trim(),
+        otherskills: _skillsController.text.trim().isEmpty
+            ? null
+            : _skillsController.text.trim(),
+        status: _selectedStatus,
+        membershiptype: _membershipTypeController.text.trim(),
+        emergencycontactname: _emergencyNameController.text.trim().isEmpty
+            ? null
+            : _emergencyNameController.text.trim(),
+        emergencycontactphone: _emergencyPhoneController.text.trim().isEmpty
+            ? null
+            : _emergencyPhoneController.text.trim(),
+        emergencycontactrelationship:
+            _emergencyRelationshipController.text.trim().isEmpty
+            ? null
+            : _emergencyRelationshipController.text.trim(),
+        joindate: DateTime.now(),
+        profilepicture: "",
+      );
+
       await Provider.of<MemberProvider>(
         context,
         listen: false,
@@ -117,13 +137,16 @@ class _MemberAddPageState extends State<MemberAddPage> {
         const SnackBar(content: Text('Member added successfully')),
       );
 
-      Navigator.pop(context);
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to add member: ${e.toString()}')),
       );
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -159,13 +182,43 @@ class _MemberAddPageState extends State<MemberAddPage> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _nameController,
+                controller: _firstNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Full Name*',
+                  labelText: 'First Name*',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Last Name*',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: _selectedGender,
+                decoration: const InputDecoration(
+                  labelText: 'Gender*',
+                  border: OutlineInputBorder(),
+                ),
+                items: _genderOptions.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedGender = newValue;
+                  });
+                },
+                validator: (value) => value == null ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(

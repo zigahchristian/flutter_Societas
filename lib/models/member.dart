@@ -1,6 +1,11 @@
+import 'package:intl/intl.dart';
+
 class Member {
-  final int? id;
+  final int? id; // Changed from String? to int?
   final String membername;
+  final String firstname;
+  final String lastname;
+  final String? gender;
   final String? email;
   final String? phone;
   final String? position;
@@ -9,6 +14,7 @@ class Member {
   final String? occupation;
   final String? otherskills;
   final String? profilepicture;
+  final String? publicprofilepictureurl;
   final String? emergencycontactname;
   final String? emergencycontactphone;
   final String? emergencycontactrelationship;
@@ -19,6 +25,9 @@ class Member {
   Member({
     this.id,
     required this.membername,
+    required this.firstname,
+    required this.lastname,
+    this.gender,
     this.email,
     this.phone,
     this.position,
@@ -27,6 +36,7 @@ class Member {
     this.occupation,
     this.otherskills,
     this.profilepicture,
+    this.publicprofilepictureurl,
     this.emergencycontactname,
     this.emergencycontactphone,
     this.emergencycontactrelationship,
@@ -37,8 +47,11 @@ class Member {
 
   factory Member.fromJson(Map<String, dynamic> json) {
     return Member(
-      id: json['id'] != null ? json['id'] as int : null,
+      id: json['id'] != null ? int.tryParse(json['id'].toString()) : null,
       membername: json['membername'] as String,
+      firstname: json['firstname'] as String? ?? '',
+      lastname: json['lastname'] as String? ?? '',
+      gender: json['gender'] as String? ?? '',
       email: json['email'] as String?,
       phone: json['phone'] as String?,
       position: json['position'] as String?,
@@ -49,6 +62,7 @@ class Member {
       occupation: json['occupation'] as String?,
       otherskills: json['otherskills'] as String?,
       profilepicture: json['profilepicture'] as String?,
+      publicprofilepictureurl: json['publicprofilepictureurl'] as String?,
       emergencycontactname: json['emergencycontactname'] as String?,
       emergencycontactphone: json['emergencycontactphone'] as String?,
       emergencycontactrelationship:
@@ -62,29 +76,41 @@ class Member {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'id': id,
       'membername': membername,
+      'firstname': firstname,
+      'lastname': lastname,
+      'gender': gender,
       'email': email,
       'phone': phone,
       'position': position,
       'memberaddress': memberaddress,
-      'dateofbirth': dateofbirth?.toIso8601String(),
+      'dateofbirth': dateofbirth != null
+          ? DateFormat('yyyy-MM-dd').format(dateofbirth!)
+          : null,
       'occupation': occupation,
       'otherskills': otherskills,
       'profilepicture': profilepicture,
+      'publicprofilepictureurl': publicprofilepictureurl,
       'emergencycontactname': emergencycontactname,
       'emergencycontactphone': emergencycontactphone,
       'emergencycontactrelationship': emergencycontactrelationship,
       'membershiptype': membershiptype,
-      'join_date': joindate.toIso8601String(),
+      'joindate': joindate.toIso8601String(),
       'status': status.toString(),
     };
+    // Remove null values
+    map.removeWhere((key, value) => value == null);
+    return map;
   }
 
   Member copyWith({
     int? id,
     String? membername,
+    String? firstname,
+    String? lastname,
+    String? gender,
     String? email,
     String? phone,
     String? position,
@@ -93,6 +119,7 @@ class Member {
     String? occupation,
     String? otherskills,
     String? profilepicture,
+    String? publicprofilepictureurl,
     String? emergencycontactname,
     String? emergencycontactphone,
     String? emergencycontactrelationship,
@@ -103,6 +130,9 @@ class Member {
     return Member(
       id: id ?? this.id,
       membername: membername ?? this.membername,
+      firstname: firstname ?? this.firstname,
+      lastname: lastname ?? this.lastname,
+      gender: gender ?? this.gender,
       email: email ?? this.email,
       phone: phone ?? this.phone,
       position: position ?? this.position,
@@ -111,6 +141,8 @@ class Member {
       occupation: occupation ?? this.occupation,
       otherskills: otherskills ?? this.otherskills,
       profilepicture: profilepicture ?? this.profilepicture,
+      publicprofilepictureurl:
+          publicprofilepictureurl ?? this.publicprofilepictureurl,
       emergencycontactname: emergencycontactname ?? this.emergencycontactname,
       emergencycontactphone:
           emergencycontactphone ?? this.emergencycontactphone,

@@ -5,28 +5,26 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MemberProvider with ChangeNotifier {
+  final String _baseUrl =
+      dotenv.env['API_BASE_URL_MEMBER'] ?? 'http://localhost:7240/api/member';
   List<Member> _members = [];
 
   List<Member> get members => _members;
 
   Future<void> fetchMembers() async {
     try {
-      print('Fetching members from API...');
       final response = await http.get(
-        Uri.parse('http://localhost:7240/api/member'),
+        Uri.parse(_baseUrl),
         headers: {'Accept': 'application/json'},
       );
-      print('Response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         // parse and update members
         final List data = jsonDecode(response.body);
-        print(data);
         _members = data.map((json) => Member.fromJson(json)).toList();
-        print("Completed");
         notifyListeners();
       } else {
-        print('Failed to load members: ${response.statusCode}');
+        throw Exception('Failed to load members');
       }
     } catch (e) {
       print('Error fetching members: $e');
@@ -35,27 +33,37 @@ class MemberProvider with ChangeNotifier {
 
   // ✅ Add new member
   Future<void> addMember(Member newMember) async {
-    final url = dotenv.env['DATABASE_URL'] ?? 'http://localhost:3000/members';
+    // Remove 'id' from the JSON map if present
+    final memberJson = newMember.toJson();
+    memberJson.remove('id');
+
+    print('Adding new member: ${memberJson}');
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse(_baseUrl),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(newMember.toJson()),
+      body: jsonEncode(memberJson),
     );
+    print(response.statusCode);
+    print(response.body);
 
     if (response.statusCode == 201 || response.statusCode == 200) {
       final added = Member.fromJson(jsonDecode(response.body));
       _members.add(added);
       notifyListeners();
     } else {
-      throw Exception('Failed to add member');
+      throw Exception('Failed to add member laaa');
     }
   }
 
   // ✅ Update member
   Future<void> updateMember(Member updatedMember) async {
-    final url = 'http://localhost:8000/members/${updatedMember.id}';
-    final response = await http.put(
-      Uri.parse(url),
+    print('Updating member: ${updatedMember.toJson()}');
+    if (updatedMember.id == null) {
+      throw Exception('Member ID required for update');
+    }
+    print('$_baseUrl/${updatedMember.id}');
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/${updatedMember.id}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(updatedMember.toJson()),
     );
@@ -75,8 +83,7 @@ class MemberProvider with ChangeNotifier {
 
   // ✅ Delete member
   Future<void> deleteMember(int id) async {
-    final url = 'http://localhost:8000/members/$id';
-    final response = await http.delete(Uri.parse(url));
+    final response = await http.delete(Uri.parse('$_baseUrl/$id'));
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       _members.removeWhere((member) => member.id == id);
