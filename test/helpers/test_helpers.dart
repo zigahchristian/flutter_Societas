@@ -1,0 +1,2 @@
+@GenerateMocks([MemberProvider])
+void main() {}

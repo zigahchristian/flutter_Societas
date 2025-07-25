@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:societas/screens/attendance/atendance_list.dart';
 import 'package:societas/screens/members/member_list.dart';
+import 'package:societas/screens/turnout/turnout_list.dart';
 import 'package:societas/screens/payments/payment_list.dart';
 
 class MainTabPage extends StatefulWidget {
@@ -15,7 +15,9 @@ class _MainTabPageState extends State<MainTabPage> {
 
   final List<Widget> _tabs = [
     MemberViewPage(),
-    AttendanceByTurnoutScreen(),
+
+    TurnoutScreen(),
+
     FilteredPaymentList(),
   ];
 
@@ -30,7 +32,7 @@ class _MainTabPageState extends State<MainTabPage> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available),
-            label: 'Attendance',
+            label: 'Turnouts',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.payment), label: 'Payments'),
         ],

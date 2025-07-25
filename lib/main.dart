@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:societas/main_tab_page.dart';
-import 'package:societas/providers/attendance_provider.dart';
+
 import 'package:societas/providers/payment_provider.dart';
 import 'package:societas/providers/theme_provider.dart';
 import 'package:societas/providers/turnout_provider.dart';
@@ -24,7 +24,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MemberProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => TurnoutProvider()),
-        ChangeNotifierProvider(create: (_) => AttendanceProvider()),
       ],
       child: const Societas(),
     ),
